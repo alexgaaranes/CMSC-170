@@ -13,17 +13,13 @@
 class Board:
     grid: list = None
 
-    def __init__(self):
-        self.grid = [
-            ['','',''],
-            ['','',''],
-            ['','','']
-        ]
+    def __init__(self, grid: list):
+        self.grid = grid
     
     def show(self):
         for row in self.grid:
             for cell in row:
-                print(f'| {' ' if cell == '' else cell} ', end='')
+                print(f"| {' ' if cell == '' else cell} ", end='')
             print('|')
     
     def put(self, turn: str, pos: tuple) -> None:
@@ -67,8 +63,13 @@ class Player:
 # Execute when file is ran
 if __name__ == '__main__':
 
+    my_grid = [
+        ['','',''],
+        ['','',''],
+        ['','','']
+    ]
     # game logic
-    my_board: Board = Board()
+    my_board: Board = Board(my_grid)
 
     while(my_board.winner() == None):
         my_board.show()
