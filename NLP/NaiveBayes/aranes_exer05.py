@@ -2,9 +2,14 @@
 #	Section:	EF-4L
 #	Responsible Use of AI:
 #		Extent and Purpose of AI Use:
-
+#			AI was used to summarize the search for Python syntax and features. It reduced the time
+#			for searching on proper ways to define variables with classes. It is also used to explain
+#			how defining variables outside of dunder methods __init__ makes it class level rather than
+#			instance level which caused errors earlier
 #		Responsible Use Justification:
-#
+#			Every single piece of code is typewritten by the author. No code generation from agentic
+#			tools and copy-paste from LLMs are used to create the program. Everything is implemented
+#			from scratch with just the help of reviewing python syntax along the way.
 
 from decimal import *
 import re, os
@@ -17,6 +22,7 @@ class Bow:
 		self._size: int  = None
 		self._count: int = None
 		self._label: str = label
+		self._num_msgs: int = 0
 
 	def __repr__(self):
 		return f"{self._label if self._label != None else ''}\nTotal Words: {self._count}\nDictionary Size: {self._size}"
@@ -41,7 +47,7 @@ class Bow:
 		self._count = total_words	# set the total frequency
 
 		# Write the bag in an output file
-		with open("output.txt", "w") as f:
+		with open(f"out_{self._label}.txt", "w") as f:
 			f.write(f"Dictionary Size: {self._size}\n")
 			f.write(f"Total Word Count: {self._count}\n\n")
 			# write per key
@@ -54,6 +60,7 @@ class Bow:
 		if not os.path.isfile(item_path): return
 		# proceed to reading if file
 		with open(item_path, 'r', encoding='Latin-1') as f:
+			self._num_msgs += 1
 			f_content = f.read()
 			tokens = self._cleanContent(f_content)
 			
@@ -74,6 +81,10 @@ class Bow:
 			tokens[i] = re.sub(r"[^A-Za-z0-9]", '', tokens[i]).lower()
 
 		return tokens
+	
+	# get words
+	def get_words(self):
+		return set(self._bag.keys())
 
 	# Get the label
 	def get_label(self) -> str:
@@ -84,16 +95,16 @@ class Bow:
 		return self._bag.get(word, 0)
 
 	# return the size
-	def get_size(self) -> int:
-		return self._size
+	def get_num_msgs(self) -> int:
+		return self._num_msgs
 
 	# Get the probability of the bag
-	def get_probability(self, bag_size: int, smoothing: float = 0) -> Decimal:
-		return Decimal((self._size + smoothing)/ (self._size + bag_size + 2*smoothing))
+	def get_probability(self, other_num: int, smoothing: float = 0) -> Decimal:
+		return Decimal((self._num_msgs + smoothing)/ (self._num_msgs + other_num + 2*smoothing))
 
 	# Get word probability
-	def get_word_probability(self, word, bag_size, num_new_words: int = 0, smoothing: float = 0) -> Decimal:
-		return Decimal((self._bag.get(word, 0) + smoothing) / ((self._count) + (smoothing*(self._size + bag_size)+num_new_words)))
+	def get_word_probability(self, word, dict_size, num_new_words: int = 0, smoothing: float = 0) -> Decimal:
+		return Decimal((self._bag.get(word, 0) + smoothing) / (self._count + (smoothing*(dict_size + num_new_words))))
 
 
 # Class for the classifier
@@ -138,8 +149,8 @@ class NaiveBayes:
 	# Train the model given the spam and ham bags
 	def train(self):	# by default, use smoothing passed in initializaton
 		k = self._smoothing
-		self._p_spam = self._spam.get_probability(self._ham.get_size(), k)
-		self._p_ham = self._ham.get_probability(self._spam.get_size(), k)
+		self._p_spam = self._spam.get_probability(self._ham.get_num_msgs(), k)
+		self._p_ham = Decimal(1 - self._p_spam)
 
 	# classify message
 	def classify(self, message: str) -> tuple:
@@ -150,23 +161,27 @@ class NaiveBayes:
 
 		p_message_g_spam: Decimal = Decimal(1)
 		p_message_g_ham: Decimal = Decimal(1)
+
+		# get set of unique words from both bags
+		unique_words = self._spam.get_words() | self._ham.get_words()
 		# Get probability of message given spam
 		for word in existing:
-			p_message_g_spam *= self._spam.get_word_probability(word, self._ham.get_size(), num_new, k)	
+			p_message_g_spam *= self._spam.get_word_probability(word, len(unique_words), num_new, k)	
 		for word in new:
-			p_message_g_spam *= self._spam.get_word_probability(word, self._ham.get_size(), num_new, k)	
+			p_message_g_spam *= self._spam.get_word_probability(word, len(unique_words), num_new, k)	
 
 		# Get probability of message given ham
 		for word in existing:
-			p_message_g_ham *= self._ham.get_word_probability(word, self._spam.get_size(), num_new, k)	
+			p_message_g_ham *= self._ham.get_word_probability(word, len(unique_words), num_new, k)	
 		for word in new:
-			p_message_g_ham *= self._ham.get_word_probability(word, self._spam.get_size(), num_new, k)	
+			p_message_g_ham *= self._ham.get_word_probability(word, len(unique_words), num_new, k)	
 
 		# Get probability of message
-		p_message: Decimal = p_message_g_spam*self._p_spam + p_message_g_ham*self._p_ham
+		p_total_spam: Decimal = p_message_g_spam*self._p_spam 
+		p_total_ham: Decimal = p_message_g_ham*self._p_ham
 
 		# Get the probability of Spam given message
-		p_spam_g_message: Decimal = (p_message_g_spam*self._p_spam) / p_message
+		p_spam_g_message: Decimal = Decimal(p_total_spam / (p_total_spam + p_total_ham))
 
 		# Return classification and probability
 		classification = self._spam.get_label() if p_spam_g_message >= self._threshold else self._ham.get_label()
@@ -176,6 +191,9 @@ class NaiveBayes:
 
 # Main
 if __name__ == '__main__':
+	# Get smoothing
+	k: float = float(input("Enter Laplace smoothing level: "))
+
 	# Get current directory
 	curr_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -189,10 +207,6 @@ if __name__ == '__main__':
 	print(spam_bag)
 	print()
 	print(ham_bag)
-
-	# Get smoothing
-	# k: float = float(input("Enter Laplace smoothing level: "))
-	k = 0.001
 
 	# Create model and train
 	naive_bayes = NaiveBayes(spam_bag, ham_bag, k)
@@ -208,4 +222,4 @@ if __name__ == '__main__':
 		with open(item_path, 'r', encoding='Latin-1') as f:
 			f_content = f.read()
 			result = naive_bayes.classify(f_content)
-			print(f"{item}\t{result[0].capitalize()}\t{result[1]}")
+			print(f"{item}\t {result[0].capitalize()}\t {result[1]}")
