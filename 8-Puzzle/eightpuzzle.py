@@ -9,6 +9,7 @@ class EightPuzzle:
     def __init__(self, grid_str: str):
         self.isSolved = False
         self.load_grid(grid_str)
+        self.check_if_solvable()
 
     def __repr__(self):
         return f"EightPuzzle(grid={self.grid}, zLoc={self.zLoc}, isSolved={self.isSolved})"
@@ -33,16 +34,16 @@ class EightPuzzle:
                     if self.grid[i][j] == '0':
                         self.zLoc = [i, j] # (row, col)
                         return
-        # test if the grid is solvable
-        if not self.check_solved():
-            flat_grid = sum(self.grid, [])
-            inversions = 0
-            for i in range(9):
-                for j in range(i + 1, 9):
-                    if flat_grid[i] != '0' and flat_grid[j] != '0' and int(flat_grid[i]) > int(flat_grid[j]):
-                        inversions += 1
-            if inversions % 2 != 0:
-                raise ValueError("Impossible Puzzle")
+    def check_if_solvable(self):
+        flat_grid = sum(self.grid, [])
+        inversions = 0
+        for i in range(9):
+            for j in range(i + 1, 9):
+                if flat_grid[i] != '0' and flat_grid[j] != '0' and int(flat_grid[i]) > int(flat_grid[j]):
+                    inversions += 1
+        if inversions % 2 != 0:
+            print("Not solvable!")
+            exit(1)
     
     # Display grid
     def show_grid(self):
