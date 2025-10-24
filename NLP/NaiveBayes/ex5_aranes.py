@@ -126,8 +126,8 @@ class NaiveBayes:
 		_p_ham: Decimal = None
 
 	def _tokenize(self, message: str):
-		existing_words = []
-		new_words = []
+		existing_words = set()
+		new_words = set()
 		# tokenization
 		message = re.sub(r"\s", ' ', message)
 		tokens: list = message.split(" ")
@@ -140,8 +140,8 @@ class NaiveBayes:
 		for token in tokens:
 			if token == '': continue	# skip empty tokens
 			if (self._spam.get_freq(token) > 0
-				or self._ham.get_freq(token) > 0): existing_words.append(token)	
-			else: new_words.append(token)
+				or self._ham.get_freq(token) > 0): existing_words.add(token)	
+			else: new_words.add(token)
 		
 		return existing_words, new_words
 
