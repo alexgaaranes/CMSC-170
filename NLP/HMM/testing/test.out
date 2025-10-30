@@ -1,0 +1,42 @@
+Building HMM...
+
+Initial state model/distribution length: 36
+Transition model/distribution dimension: 36 x 36
+Sensor model/distribution dimension: 36 x 10741
+
+Testing HMM...
+
+Sentence 1: Pierre Vinken, 61 years old, will join the board as a non-executive director Nov. 29.
+Total full-sentence tag sequences: 768
+Sequence with max probability:
+=> pierre/NNP vinken/NNP 61/CD years/NNS old/NNP will/MD join/VB the/DT board/NN as/IN a/DT nonexecutive/JJ director/NN nov/NNP 29/CD: 3.473937218452883154659658069E-48
+
+Sentence 2: Mr. Vinken is chairman of Elsevier N.V., the Dutch publishing group. 
+Total full-sentence tag sequences: 192
+Sequence with max probability:
+=> mr/NNP vinken/NNP is/VBZ chairman/NN of/IN elsevier/NNP nv/NNP the/DT dutch/JJ publishing/NN group/NN: 6.614467579010679741678811734E-35
+
+Sentence 3: Trinity Industries Inc. said it reached a preliminary agreement to sell 500 railcar platforms to Trailer Train Co. of Chicago.
+Total full-sentence tag sequences: 5832
+Sequence with max probability:
+=> trinity/NNP industries/NNPS inc/NNP said/VBD it/PRP reached/VBD a/DT preliminary/JJ agreement/NN to/TO sell/VB 500/CD railcar/NN platforms/NNS to/TO trailer/NNP train/NNP co/NNP of/IN chicago/NNP: 1.363990343858957813701418859E-60
+
+Sentence 4: Terms were disclosed. 
+Total full-sentence tag sequences: 2
+Sequence with max probability:
+=> terms/NNS were/VBD disclosed/VBN: 8.362869221271652451268252133E-10
+
+Sentence 5: Trinity said it plans to begin delivery in the first quarter of next year. 
+Total full-sentence tag sequences: 5760
+Sequence with max probability:
+=> trinity/NNP said/VBD it/PRP plans/VBZ to/TO begin/VB delivery/NN in/IN the/DT first/JJ quarter/NN of/IN next/JJ year/NN: 5.000012226697488027558438717E-33
+
+Sentence 6: Two leading constitutional-law experts said President Bush does have the legal authority to exercise a line-item veto. 
+Total full-sentence tag sequences: 36864
+Sequence with max probability:
+=> two/CD leading/VBG constitutionallaw/NN experts/NNS said/VBD president/NNP bush/NNP does/VBZ have/VB the/DT legal/JJ authority/NN to/TO exercise/VB a/DT lineitem/JJ veto/NN: 5.347871157947420545148502779E-52
+
+Sentence 7: The equity market has already begun.
+Total full-sentence tag sequences: 32
+Sequence with max probability:
+=> the/DT equity/NN market/NN has/VBZ already/RB begun/VBN: 3.356272770929527795450223384E-16
